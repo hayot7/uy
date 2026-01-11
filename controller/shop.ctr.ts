@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import db from "../config/db";
+import db from "../config/pg";
 
 export const getShopProducts = async (req: Request, res: Response) => {
   try {
@@ -30,3 +30,4 @@ export const addShopProduct = async (req: Request, res: Response) => {
     res.status(500).json({ msg: "Failed to add product" });
   }
 };
+git add .

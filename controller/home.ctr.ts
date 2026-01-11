@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import * as BannerModel from '../models/banner.model';
 import * as CategoryModel from '../models/category.model';
-import db from '../config/db';
+import db from '../config/pg';
 
 // GET /api/banners
 export const listBanners = async (_req: Request, res: Response) => {
