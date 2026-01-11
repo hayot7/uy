@@ -1,17 +1,23 @@
 import { Router } from "express";
-import { getProducts, addProduct } from "../controller/product.ctr";
-import { auth } from "../middleware/auth.middleware";
+import {
+  getProducts,
+  addProduct,
+  getProductsSafe,
+  addProductValidated
+} from "../controller/product.ctr";
+
+import {
+  getShopProducts,
+  addShopProduct
+} from "../controller/shop.ctr";
 
 const router = Router();
 
-router.get("/", getProducts);
-router.post("/", auth, addProduct);
+router.get("/get_product", getProducts);
+router.post("/add_product", addProduct);
+router.get("/safe", getProductsSafe);
+router.post("/create-enhanced", addProductValidated);
+router.get("/shop", getShopProducts);
+router.post("/shop", addShopProduct);
 
 export default router;
-
-import { getProductsSafe, addProductValidated } from "../controller/product.ctr";
-import { authEnhanced } from "../middleware/auth.middleware";
-
-router.get("/safe", getProductsSafe);
-
-router.post("/create-enhanced", authEnhanced, addProductValidated);

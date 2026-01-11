@@ -1,29 +1,25 @@
-import { Pool, PoolClient, QueryResult } from 'pg';
-
-const connectionString = process.env.DATABASE_URL || '';
-const maxPool = Number(process.env.DB_MAX_POOL || 10);
-const useSsl = process.env.DB_SSL === 'true';
+import { Pool } from "pg";
 
 const pool = new Pool({
-  connectionString: connectionString || undefined,
-  max: maxPool,
-  ...(useSsl ? { ssl: { rejectUnauthorized: false } } : {})
+  connectionString: process.env.DATABASE_URL,
 });
 
-pool.on('error', (err) => {
-  console.error('Unexpected error on idle Postgres client', err);
-});
+export const connectDB = async () => {
+  await pool.connect();
+  console.log("Postgres connected");
 
-type QueryArgs = any[] | undefined;
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS products (
+      id SERIAL PRIMARY KEY,
+      title TEXT NOT NULL,
+      price INTEGER NOT NULL,
+      category TEXT NOT NULL,
+      description TEXT,
+      image TEXT
+    );
+  `);
 
-export default {
-  query: (text: string, params?: QueryArgs): Promise<QueryResult> => {
-    return pool.query(text, params);
-  },
-
-  getClient: async (): Promise<PoolClient> => {
-    return pool.connect();
-  },
-
-  pool
+  console.log("Products table ready");
 };
+
+export default pool;
