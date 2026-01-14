@@ -1,40 +1,50 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import { verifyToken } from "../utils.ts/jwt";
 
-export const auth = (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization?.split(" ")[1];
-
-    if (!token) return res.status(401).json({ msg: "No token" });
-
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET as string);
-        (req as any).user = decoded;
-        next();
-    } catch {
-        res.status(401).json({ msg: "Invalid token" });
+declare global {
+  namespace Express {
+    interface Request {
+      user?: { id: number; email?: string; role?: string };
     }
-};
-
-const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
-
-export interface AuthRequest extends Request {
-  userId?: string;
-  jwtPayload?: any;
+  }
 }
 
-export const authEnhanced = (req: Request, res: Response, next: NextFunction) => {
-  const token = req.headers.authorization?.split(" ")[1];
-
-  if (!token) return res.status(401).json({ msg: "No token" });
-
+/**
+ * Require authentication middleware.
+ * Expects Authorization: Bearer <token>
+ */
+export function requireAuth(req: Request, res: Response, next: NextFunction) {
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as any;
-    const r = req as AuthRequest;
-    r.userId = decoded?.id ?? decoded?.userId;
-    r.jwtPayload = decoded;
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    const token = authHeader.split(" ")[1];
+    const payload = verifyToken<{ id: number; email?: string; role?: string }>(token);
+
+    // payload may contain iat/exp as well
+    if (!payload || typeof payload !== "object" || !("id" in payload)) {
+      return res.status(401).json({ message: "Invalid token payload" });
+    }
+
+    req.user = {
+      id: (payload as any).id,
+      email: (payload as any).email,
+      role: (payload as any).role
+    };
+
     next();
-  } catch (err) {
-    console.error("authEnhanced token error:", err);
-    return res.status(401).json({ msg: "Invalid token" });
+  } catch (err: any) {
+    // token invalid or expired
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
-};
+}
+
+/**
+ * Admin-only middleware helper
+ */
+export function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  if (!req.user) return res.status(401).json({ message: "Unauthorized" });
+  if (req.user.role !== "admin") return res.status(403).json({ message: "Forbidden" });
+  next();
+}

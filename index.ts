@@ -1,9 +1,7 @@
 import dotenv from "dotenv";
 dotenv.config();
-
 import express from "express";
 import db from "./config/pg";
-
 import authRoutes from "./routes/auth.routes";
 import productRoutes from "./routes/product.routes";
 import homeRoutes from "./routes/home.routes";

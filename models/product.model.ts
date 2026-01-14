@@ -1,23 +1,30 @@
 import mongoose from "mongoose";
 
-const productSchema = new mongoose.Schema({
-    title: { type: String, required: true },
-    price: { type: Number, required: true },
-    category: { type: String, required: true },
-    description: String,
-    image: String
-});
+const productMetaSchema = new mongoose.Schema({
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Product",
+    required: true
+  },
 
-export const Product = mongoose.model("Product", productSchema);
+  images: [String],
+  colors: [String],
+  storages: [String],
 
-import { Document } from "mongoose";
+  specs: {
+    display: String,
+    cpu: String,
+    camera: String,
+    battery: String,
+    memory: String
+  },
 
-export interface IProduct extends Document {
-  title: string;
-  price: number;
-  category: string;
-  description?: string;
-  image?: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+  rating: { type: Number, default: 0 },
+  reviewCount: { type: Number, default: 0 }
+
+}, { timestamps: true });
+
+export const ProductMeta = mongoose.model(
+  "ProductMeta",
+  productMetaSchema
+);

@@ -11,6 +11,8 @@ import {
   addShopProduct
 } from "../controller/shop.ctr";
 
+import { getProductById } from "../controller/product.ctr";
+
 const router = Router();
 
 router.get("/get_product", getProducts);
@@ -19,5 +21,6 @@ router.get("/safe", getProductsSafe);
 router.post("/create-enhanced", addProductValidated);
 router.get("/shop", getShopProducts);
 router.post("/shop", addShopProduct);
+router.get("/product/:id", getProductById);
 
 export default router;

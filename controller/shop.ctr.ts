@@ -30,4 +30,3 @@ export const addShopProduct = async (req: Request, res: Response) => {
     res.status(500).json({ msg: "Failed to add product" });
   }
 };
-git add .
